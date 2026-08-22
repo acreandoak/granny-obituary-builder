@@ -1,0 +1,90 @@
+[
+  {
+    "y" : 0.84680080216147113,
+    "h" : 0.060381220037286965,
+    "x" : 0.17473532750626136,
+    "w" : 0.24036873844350015,
+    "conf" : 0.5,
+    "text" : "Cributes"
+  },
+  {
+    "text" : "Kasei",
+    "x" : 0.68245125413382157,
+    "y" : 0.82112068949572847,
+    "w" : 0.11420612873328517,
+    "conf" : 0.5,
+    "h" : 0.038793103767163828
+  },
+  {
+    "text" : "Some people search their whole lives for their other half. God thought",
+    "w" : 0.58592587653372352,
+    "h" : 0.034522821830980766,
+    "y" : 0.77060589320648631,
+    "x" : 0.18044790422491516,
+    "conf" : 1
+  },
+  {
+    "x" : 0.18105851055359506,
+    "w" : 0.57381613800144504,
+    "conf" : 1,
+    "h" : 0.028051201791474245,
+    "text" : "enough of me to give me mine in the form of my sister. Kaila was my",
+    "y" : 0.75212121171077784
+  },
+  {
+    "text" : "protector, my biggest cheerleader, and my best friend. I will miss you",
+    "h" : 0.033350476351651226,
+    "y" : 0.72831570499389531,
+    "w" : 0.57757300493485508,
+    "x" : 0.18041993076909463,
+    "conf" : 1
+  },
+  {
+    "w" : 0.58535938801062892,
+    "x" : 0.17801529458349516,
+    "y" : 0.71109190603626571,
+    "h" : 0.025733829845081768,
+    "conf" : 1,
+    "text" : "with all that is in me and there isn't a day where I won't talk to you or"
+  },
+  {
+    "y" : 0.68965517265405607,
+    "conf" : 1,
+    "h" : 0.023706896232836172,
+    "text" : "hear your laugh echo through my thoughts. Kaila, I hope to be half of the",
+    "x" : 0.18105851873486717,
+    "w" : 0.60724230918764688
+  },
+  {
+    "y" : 0.67025862108871159,
+    "text" : "human being you were to everyone you met. You were my little sister but",
+    "h" : 0.021551724058209043,
+    "w" : 0.61281334569087975,
+    "conf" : 1,
+    "x" : 0.18105851016291666
+  },
+  {
+    "h" : 0.019618599631569533,
+    "text" : "you taught me everything I know about love. How to give it absolutely",
+    "x" : 0.1782729905434067,
+    "conf" : 1,
+    "y" : 0.64848484883177304,
+    "w" : 0.59052924751114322
+  },
+  {
+    "w" : 0.60167127268441423,
+    "x" : 0.18105852159651142,
+    "h" : 0.017575757575757578,
+    "text" : "selflessly. There is a tremendous hole in my heart but I hope that I can be",
+    "conf" : 1,
+    "y" : 0.62909090884583097
+  },
+  {
+    "w" : 0.56824510149821217,
+    "y" : 0.60545454557018696,
+    "h" : 0.019545454545454533,
+    "x" : 0.17827300189713319,
+    "conf" : 1,
+    "text" : "the best representative for both of us from here on out. I got you, Sis."
+  }
+]

@@ -1,0 +1,66 @@
+[
+  {
+    "text" : "Tributes",
+    "x" : 0.56267409622008691,
+    "h" : 0.053879311301491484,
+    "conf" : 1,
+    "w" : 0.24512534305967126,
+    "y" : 0.89655172395892857
+  },
+  {
+    "y" : 0.86206896585784465,
+    "w" : 0.1030640676851183,
+    "text" : "Olivia",
+    "x" : 0.18941504210252644,
+    "conf" : 1,
+    "h" : 0.025862068407463301
+  },
+  {
+    "w" : 0.6242556676595562,
+    "x" : 0.16422250654194104,
+    "y" : 0.82042630070909817,
+    "h" : 0.021179737900242745,
+    "text" : "\"If you live to be a hundred, I want to live to be a hundred minus one day so",
+    "conf" : 1
+  },
+  {
+    "y" : 0.79802513121019969,
+    "w" : 0.62980618372232555,
+    "conf" : 1,
+    "text" : "I never have to live without you.\" We just knew that was written for us. We",
+    "x" : 0.16146219358312661,
+    "h" : 0.023274993896484353
+  },
+  {
+    "h" : 0.019568965796268323,
+    "conf" : 1,
+    "x" : 0.1643454146640633,
+    "w" : 0.64902503512869825,
+    "y" : 0.77999999969293643,
+    "text" : "knew that we would experience every step of life side by side, beginning to end."
+  },
+  {
+    "text" : "Now you're gone. I don't know how to keep going without you, but I do know",
+    "x" : 0.16713092496333046,
+    "conf" : 1,
+    "y" : 0.76060606075477721,
+    "w" : 0.64066852820704334,
+    "h" : 0.019566353306625817
+  },
+  {
+    "text" : "that you will be with my every step and breath. Forever. I waited 27 days for my",
+    "x" : 0.16434541004058079,
+    "y" : 0.74121212119700597,
+    "h" : 0.01956374081698331,
+    "w" : 0.65459607163193079,
+    "conf" : 1
+  },
+  {
+    "text" : "best friend, and I will spend the rest of my life missing you.",
+    "conf" : 1,
+    "y" : 0.71982758672925418,
+    "w" : 0.48467964961610988,
+    "h" : 0.017241378552985909,
+    "x" : 0.16434542003874139
+  }
+]
