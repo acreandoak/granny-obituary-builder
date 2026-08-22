@@ -39,7 +39,15 @@ Or send them a zip of the project folder (without `node_modules`) and the same `
 
 ### Live website link
 
-A public web link means anyone with the URL can open the app (including family photos). If you want that, ask to deploy it (Vercel / Netlify) and we’ll set it up.
+Anyone can open the booklet builder here (works off your Wi‑Fi):
+
+**https://acreandoak.github.io/granny-obituary-builder/**
+
+Note: that site includes the family photos in the project. Anyone with the link can view them.
+
+Vercel could not deploy right now — the Hobby team is blocked for fair-use limits. Fix that in the [Vercel dashboard](https://vercel.com/dashboard) if you want a Vercel URL later.
+
+Your layout edits are still only in your browser until you click **Save file** and they click **Load file**.
 
 ## Tips
 
