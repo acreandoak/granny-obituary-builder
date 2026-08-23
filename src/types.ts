@@ -93,6 +93,8 @@ export interface MemorialDocument {
   pageHeight: number
   pages: Page[]
   updatedAt: string
+  /** When set, first-time visitors get this baked-in layout instead of the empty seed. */
+  sharedDefaultVersion?: string
 }
 
 export const PAGE_WIDTH = 816

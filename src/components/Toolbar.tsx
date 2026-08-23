@@ -84,7 +84,7 @@ export function Toolbar({ store, onZoomChange, onFit, autoFit, onPasteImage }: P
         <button type="button" onClick={addPage}>
           Page
         </button>
-        <button type="button" onClick={deletePage} disabled={doc.pages.length <= 1}>
+        <button type="button" onClick={deletePage} disabled={!doc || doc.pages.length <= 1}>
           Delete page
         </button>
         <button type="button" onClick={removeSelected} disabled={!selected}>

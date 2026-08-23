@@ -12,7 +12,7 @@ import type { CanvasElement, EditSurface, MemorialDocument, Page } from '../type
 
 const STORAGE_KEY = 'granny-obituary-builder:v7'
 
-function loadDocument(): MemorialDocument {
+function loadFromLocalStorage(): MemorialDocument | null {
   try {
     for (const key of [STORAGE_KEY, 'granny-obituary-builder:v6', 'granny-obituary-builder:v5']) {
       const raw = localStorage.getItem(key)
@@ -23,13 +23,13 @@ function loadDocument(): MemorialDocument {
   } catch {
     /* ignore */
   }
-  const first = libraryPhotos[0]?.src ?? null
-  return createSeedDocument(first)
+  return null
 }
 
 function migrateDocument(doc: MemorialDocument): MemorialDocument {
   const seed = createSeedDocument()
   const bookletCount = Math.min(20, seed.pages.length)
+  const keepExactPages = Boolean(doc.sharedDefaultVersion)
 
   const pages = doc.pages.map((p) => ({
     ...p,
@@ -49,20 +49,21 @@ function migrateDocument(doc: MemorialDocument): MemorialDocument {
     }),
   }))
 
-  // Restore missing booklet pages from seed without wiping existing edits
-  if (pages.length < bookletCount) {
+  // Shared / finished booklets keep their page count. Only pad old incomplete saves.
+  if (!keepExactPages && pages.length < bookletCount) {
     for (let i = pages.length; i < bookletCount; i++) {
       pages.push(seed.pages[i])
     }
   }
 
-  // Ensure every page has blank text seeds if empty and seed has them
-  for (let i = 0; i < Math.min(pages.length, bookletCount); i++) {
-    if ((!pages[i].blankElements || pages[i].blankElements.length === 0) && seed.pages[i].blankElements.length > 0) {
-      pages[i] = {
-        ...pages[i],
-        blankElements: seed.pages[i].blankElements,
-        blankBackground: pages[i].blankBackground || seed.pages[i].blankBackground,
+  if (!keepExactPages) {
+    for (let i = 0; i < Math.min(pages.length, bookletCount); i++) {
+      if ((!pages[i].blankElements || pages[i].blankElements.length === 0) && seed.pages[i].blankElements.length > 0) {
+        pages[i] = {
+          ...pages[i],
+          blankElements: seed.pages[i].blankElements,
+          blankBackground: pages[i].blankBackground || seed.pages[i].blankBackground,
+        }
       }
     }
   }
@@ -70,14 +71,53 @@ function migrateDocument(doc: MemorialDocument): MemorialDocument {
   return { ...doc, pages }
 }
 
+async function loadSharedDefault(): Promise<MemorialDocument | null> {
+  try {
+    const res = await fetch(`${import.meta.env.BASE_URL}default-booklet.json`)
+    if (!res.ok) return null
+    const parsed = (await res.json()) as MemorialDocument
+    if (!parsed?.pages || !Array.isArray(parsed.pages)) return null
+    return migrateDocument(parsed)
+  } catch {
+    return null
+  }
+}
+
 export function useDocumentStore() {
-  const [doc, setDoc] = useState<MemorialDocument>(() => loadDocument())
+  const [doc, setDoc] = useState<MemorialDocument | null>(null)
+  const [ready, setReady] = useState(false)
   const [pageIndex, setPageIndex] = useState(0)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [editSurface, setEditSurface] = useState<EditSurface>('blank')
   const [zoom, setZoom] = useState(0.55)
 
   useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      const fromLs = loadFromLocalStorage()
+      if (fromLs) {
+        if (!cancelled) {
+          setDoc(fromLs)
+          setReady(true)
+        }
+        return
+      }
+      const shared = await loadSharedDefault()
+      if (cancelled) return
+      if (shared) {
+        setDoc(shared)
+      } else {
+        setDoc(createSeedDocument(libraryPhotos[0]?.src ?? null))
+      }
+      setReady(true)
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!ready || !doc) return
     const payload = JSON.stringify({ ...doc, updatedAt: new Date().toISOString() })
     try {
       localStorage.setItem(STORAGE_KEY, payload)
@@ -92,9 +132,9 @@ export function useDocumentStore() {
         /* still over quota — do not rethrow */
       }
     }
-  }, [doc])
+  }, [doc, ready])
 
-  const page = doc.pages[pageIndex] ?? doc.pages[0]
+  const page = doc?.pages[pageIndex] ?? doc?.pages[0]
 
   const activeElements =
     editSurface === 'blank' ? page?.blankElements ?? [] : page?.elements ?? []
@@ -106,11 +146,14 @@ export function useDocumentStore() {
 
   const updatePage = useCallback(
     (updater: (p: Page) => Page) => {
-      setDoc((d) => ({
-        ...d,
-        pages: d.pages.map((p, i) => (i === pageIndex ? updater(p) : p)),
-        updatedAt: new Date().toISOString(),
-      }))
+      setDoc((d) => {
+        if (!d) return d
+        return {
+          ...d,
+          pages: d.pages.map((p, i) => (i === pageIndex ? updater(p) : p)),
+          updatedAt: new Date().toISOString(),
+        }
+      })
     },
     [pageIndex],
   )
@@ -230,6 +273,7 @@ export function useDocumentStore() {
 
   const addPage = () => {
     setDoc((d) => {
+      if (!d) return d
       const pages = [...d.pages]
       pages.splice(pageIndex + 1, 0, createBlankPage(`Page ${pages.length + 1}`))
       return { ...d, pages }
@@ -239,15 +283,17 @@ export function useDocumentStore() {
   }
 
   const deletePage = () => {
-    if (doc.pages.length <= 1) return
-    setDoc((d) => ({ ...d, pages: d.pages.filter((_, i) => i !== pageIndex) }))
-    setPageIndex((i) => Math.max(0, Math.min(i, doc.pages.length - 2)))
+    if (!doc || doc.pages.length <= 1) return
+    const len = doc.pages.length
+    setDoc((d) => (d ? { ...d, pages: d.pages.filter((_, i) => i !== pageIndex) } : d))
+    setPageIndex((i) => Math.max(0, Math.min(i, len - 2)))
     setSelectedId(null)
   }
 
   const movePage = (from: number, to: number) => {
-    if (to < 0 || to >= doc.pages.length) return
+    if (!doc || to < 0 || to >= doc.pages.length) return
     setDoc((d) => {
+      if (!d) return d
       const pages = [...d.pages]
       const [item] = pages.splice(from, 1)
       pages.splice(to, 0, item)
@@ -257,17 +303,20 @@ export function useDocumentStore() {
   }
 
   const resetToSeed = () => {
-    if (!confirm('Reset the booklet to the starter template? Your saved layout will be replaced.')) return
-    const first = libraryPhotos[0]?.src ?? null
-    const next = createSeedDocument(first)
-    setDoc(next)
-    setPageIndex(0)
-    setSelectedId(null)
-    setEditSurface('blank')
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+    if (!confirm('Reset to the shared starter booklet? Your saved layout will be replaced.')) return
+    void (async () => {
+      const shared = await loadSharedDefault()
+      const next = shared ?? createSeedDocument(libraryPhotos[0]?.src ?? null)
+      setDoc(next)
+      setPageIndex(0)
+      setSelectedId(null)
+      setEditSurface('blank')
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+    })()
   }
 
   const exportDocument = () => {
+    if (!doc) return
     const payload = JSON.stringify({ ...doc, updatedAt: new Date().toISOString() }, null, 2)
     const blob = new Blob([payload], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -324,6 +373,7 @@ export function useDocumentStore() {
   }
 
   return {
+    ready,
     doc,
     setDoc,
     page,

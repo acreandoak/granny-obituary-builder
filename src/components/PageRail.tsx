@@ -1,16 +1,19 @@
 import type { DocumentStore } from '../hooks/useDocumentStore'
+import type { Page } from '../types'
 
 type Props = {
   store: DocumentStore
 }
 
-function previewSrc(page: DocumentStore['doc']['pages'][number]): string | null {
+function previewSrc(page: Page): string | null {
   const img = page.elements.find((e) => e.type === 'image' && e.src)
   return img && img.type === 'image' ? img.src : null
 }
 
 export function PageRail({ store }: Props) {
   const { doc, pageIndex, setPageIndex, movePage, setSelectedId } = store
+
+  if (!doc) return null
 
   return (
     <div className="page-rail">

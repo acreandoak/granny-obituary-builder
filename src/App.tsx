@@ -18,6 +18,7 @@ export default function App() {
   const [autoFit, setAutoFit] = useState(true)
 
   const {
+    ready,
     page,
     pageIndex,
     selectedId,
@@ -58,6 +59,7 @@ export default function App() {
 
   const onDropPhoto = useCallback(
     (surface: EditSurface, src: string, x: number, y: number, targetId?: string) => {
+      if (!page) return
       const isScan = src.includes('/scans/')
       const isDecorClip =
         (src.includes('/cutouts/') && src.endsWith('.png')) ||
@@ -125,7 +127,7 @@ export default function App() {
       }
       addElement(el, dest)
     },
-    [page.elements, page.blankElements, selected, editSurface, updateElement, selectOnSurface, addElement],
+    [page, selected, editSurface, updateElement, selectOnSurface, addElement],
   )
 
   const placePastedImage = useCallback(
@@ -238,6 +240,14 @@ export default function App() {
   const handleManualZoom = (value: number) => {
     setAutoFit(false)
     setZoom(value)
+  }
+
+  if (!ready || !doc || !page) {
+    return (
+      <div className="app-boot">
+        <p>Loading booklet…</p>
+      </div>
+    )
   }
 
   const printPages = doc.pages.map((p) => {

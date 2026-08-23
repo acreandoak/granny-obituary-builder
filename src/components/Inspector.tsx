@@ -20,6 +20,8 @@ export function Inspector({ store }: Props) {
     editSurface,
   } = store
 
+  if (!page) return null
+
   const bg = editSurface === 'blank' ? page.blankBackground : page.background
 
   return (

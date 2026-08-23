@@ -2,6 +2,8 @@
 
 Editable memorial booklet built from real family scans and photos.
 
+The app opens with **your current booklet already loaded** (baked into `public/default-booklet.json`). Anyone who opens it for the first time sees that layout — no Save/Load handoff required unless they want a backup.
+
 ## Run on your computer
 
 ```bash
@@ -11,49 +13,45 @@ npm run dev
 
 Open http://127.0.0.1:5173/
 
-## Share your booklet with someone else
+## Share (private)
 
-Your layout is saved in **your** browser. To hand it off:
+This repo is **private**. Photos and the booklet are not on a public website.
 
-1. Open the booklet and click **Save file** (downloads a `.json` backup).
-2. Send that file (email, text, AirDrop, Drive).
-3. They open the same app, click **Load file**, and choose your `.json`.
+### Option A — Invite them on GitHub
 
-They can edit, then **Save file** again and send it back to you.
-
-### Share the app itself (code + photos)
-
-This project lives in a **private** GitHub repo. Invite them:
-
-1. Open the repo on GitHub → **Settings** → **Collaborators** → **Add people**.
-2. They accept the invite, then:
+1. Repo → **Settings** → **Collaborators** → **Add people**
+2. They accept, then:
 
 ```bash
-git clone <repo-url>
+git clone git@github.com:acreandoak/granny-obituary-builder.git
 cd granny-obituary-builder
 npm install
 npm run dev
 ```
 
-Or send them a zip of the project folder (without `node_modules`) and the same `npm install` / `npm run dev` steps.
+They get your booklet preloaded on first open.
 
-### Live website link
+### Option B — Desktop zip
 
-Anyone can open the booklet builder here (works off your Wi‑Fi):
+Send `~/Desktop/granny-obituary-builder-share.zip` (or rebuild it). They unzip, then:
 
-**https://acreandoak.github.io/granny-obituary-builder/**
+```bash
+npm install
+npm run dev
+```
 
-Note: that site includes the family photos in the project. Anyone with the link can view them.
+Same preloaded booklet.
 
-Vercel could not deploy right now — the Hobby team is blocked for fair-use limits. Fix that in the [Vercel dashboard](https://vercel.com/dashboard) if you want a Vercel URL later.
+### Handing edits back
 
-Your layout edits are still only in your browser until you click **Save file** and they click **Load file**.
+They can still click **Save file**, send you the `.json`, and you **Load file**.
 
 ## Tips
 
 - **Paste image** — copy from Freeform/Photos, then paste (images are compressed so the browser doesn’t crash).
 - **Save file** often if you’re handing work back and forth.
 - Print uses the browser print dialog (Save as PDF).
+- **Reset** reloads the shared starter booklet.
 
 ## Library tabs
 
@@ -64,4 +62,5 @@ Your layout edits are still only in your browser until you click **Save file** a
 ## Notes
 
 - No invented clip-art. Decorations come from the booklet scans.
-- Autosave is per-browser; **Save file** is how you move work between people and computers.
+- Autosave is per-browser; the shared default is only used when there is no local save yet.
+- Updating what newcomers see: replace `public/default-booklet.json` with a fresh **Save file** export, commit, and have them pull (or rebuild the zip).
