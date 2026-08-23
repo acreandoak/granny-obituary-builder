@@ -13,6 +13,9 @@ export function assetUrl(src: string | null | undefined): string {
     return src
   }
   const base = import.meta.env.BASE_URL || '/'
+  if (src.startsWith(base)) return src
+  // Already a full project path saved without origin
+  if (base !== '/' && src.startsWith('/granny-obituary-builder/')) return src
   const path = src.startsWith('/') ? src.slice(1) : src
   return `${base}${path}`
 }

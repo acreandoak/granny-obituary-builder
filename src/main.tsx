@@ -22,6 +22,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
             type="button"
             style={{ marginRight: 8, padding: '8px 12px' }}
             onClick={() => {
+              localStorage.removeItem('granny-obituary-builder:v8')
               localStorage.removeItem('granny-obituary-builder:v7')
               localStorage.removeItem('granny-obituary-builder:v6')
               localStorage.removeItem('granny-obituary-builder:v5')

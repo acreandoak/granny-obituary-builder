@@ -10,11 +10,31 @@ import {
 import { libraryPhotos } from '../data/photoManifest'
 import type { CanvasElement, EditSurface, MemorialDocument, Page } from '../types'
 
-const STORAGE_KEY = 'granny-obituary-builder:v7'
+const STORAGE_KEY = 'granny-obituary-builder:v8'
+const LEGACY_KEYS = [
+  'granny-obituary-builder:v8',
+  'granny-obituary-builder:v7',
+  'granny-obituary-builder:v6',
+  'granny-obituary-builder:v5',
+]
+/** Must match public/default-booklet.json → sharedDefaultVersion */
+export const SHIPPED_BOOKLET_VERSION = '2026-08-22-save3'
+
+function canonicalizeAssetSrc(src: string | null | undefined): string | null {
+  if (!src) return null
+  if (src.startsWith('data:') || src.startsWith('blob:')) return src
+  // Fix absolute Pages URLs that lost the project base (…github.io/photos/…)
+  const rootMiss = src.match(/^https?:\/\/[^/]+\/((?:photos|cutouts|scans|stock)\/.*)$/i)
+  if (rootMiss) return `/${rootMiss[1]}`
+  // Normalize full project URLs back to root-relative for storage
+  const withBase = src.match(/\/granny-obituary-builder\/((?:photos|cutouts|scans|stock)\/.*)$/i)
+  if (withBase) return `/${withBase[1]}`
+  return src
+}
 
 function loadFromLocalStorage(): MemorialDocument | null {
   try {
-    for (const key of [STORAGE_KEY, 'granny-obituary-builder:v6', 'granny-obituary-builder:v5']) {
+    for (const key of LEGACY_KEYS) {
       const raw = localStorage.getItem(key)
       if (!raw) continue
       const doc = JSON.parse(raw) as MemorialDocument
@@ -31,22 +51,25 @@ function migrateDocument(doc: MemorialDocument): MemorialDocument {
   const bookletCount = Math.min(20, seed.pages.length)
   const keepExactPages = Boolean(doc.sharedDefaultVersion)
 
+  const mapEl = (el: CanvasElement): CanvasElement => {
+    if (el.type !== 'image') return el
+    return {
+      ...el,
+      src: canonicalizeAssetSrc(el.src),
+      focalX: el.focalX ?? 50,
+      focalY: el.focalY ?? 50,
+      cropZoom: el.cropZoom ?? 1,
+      isFrame: el.isFrame ?? false,
+    }
+  }
+
   const pages = doc.pages.map((p) => ({
     ...p,
-    underlaySrc: p.underlaySrc ?? null,
+    underlaySrc: canonicalizeAssetSrc(p.underlaySrc),
     showUnderlay: p.showUnderlay ?? false,
-    blankElements: Array.isArray(p.blankElements) ? p.blankElements : [],
+    blankElements: Array.isArray(p.blankElements) ? p.blankElements.map(mapEl) : [],
     blankBackground: p.blankBackground ?? '#ffffff',
-    elements: (p.elements ?? []).map((el) => {
-      if (el.type !== 'image') return el
-      return {
-        ...el,
-        focalX: el.focalX ?? 50,
-        focalY: el.focalY ?? 50,
-        cropZoom: el.cropZoom ?? 1,
-        isFrame: el.isFrame ?? false,
-      }
-    }),
+    elements: (p.elements ?? []).map(mapEl),
   }))
 
   // Shared / finished booklets keep their page count. Only pad old incomplete saves.
@@ -73,11 +96,11 @@ function migrateDocument(doc: MemorialDocument): MemorialDocument {
 
 async function loadSharedDefault(): Promise<MemorialDocument | null> {
   try {
-    const res = await fetch(`${import.meta.env.BASE_URL}default-booklet.json`)
+    const res = await fetch(`${import.meta.env.BASE_URL}default-booklet.json?v=${SHIPPED_BOOKLET_VERSION}`)
     if (!res.ok) return null
     const parsed = (await res.json()) as MemorialDocument
     if (!parsed?.pages || !Array.isArray(parsed.pages)) return null
-    return migrateDocument(parsed)
+    return migrateDocument({ ...parsed, sharedDefaultVersion: parsed.sharedDefaultVersion ?? SHIPPED_BOOKLET_VERSION })
   } catch {
     return null
   }
@@ -94,22 +117,28 @@ export function useDocumentStore() {
   useEffect(() => {
     let cancelled = false
     ;(async () => {
-      const fromLs = loadFromLocalStorage()
-      if (fromLs) {
-        if (!cancelled) {
-          setDoc(fromLs)
-          setReady(true)
+      try {
+        const fromLs = loadFromLocalStorage()
+        // Prefer the shipped share booklet until this browser has that exact version
+        // (clears stale saves from before the GitHub Pages photo-path fix).
+        const useLocal = fromLs && fromLs.sharedDefaultVersion === SHIPPED_BOOKLET_VERSION
+        if (useLocal) {
+          if (!cancelled) setDoc(fromLs)
+          return
         }
-        return
+        const shared = await loadSharedDefault()
+        if (cancelled) return
+        if (shared) {
+          setDoc(shared)
+          for (const key of LEGACY_KEYS) localStorage.removeItem(key)
+        } else if (fromLs) {
+          setDoc(fromLs)
+        } else {
+          setDoc(createSeedDocument(libraryPhotos[0]?.src ?? null))
+        }
+      } finally {
+        if (!cancelled) setReady(true)
       }
-      const shared = await loadSharedDefault()
-      if (cancelled) return
-      if (shared) {
-        setDoc(shared)
-      } else {
-        setDoc(createSeedDocument(libraryPhotos[0]?.src ?? null))
-      }
-      setReady(true)
     })()
     return () => {
       cancelled = true
@@ -127,6 +156,7 @@ export function useDocumentStore() {
       try {
         localStorage.removeItem('granny-obituary-builder:v5')
         localStorage.removeItem('granny-obituary-builder:v6')
+        localStorage.removeItem('granny-obituary-builder:v7')
         localStorage.setItem(STORAGE_KEY, payload)
       } catch {
         /* still over quota — do not rethrow */
