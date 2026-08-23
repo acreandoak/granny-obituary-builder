@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { COLOR_PALETTES, type PaletteKey } from '../data/colorPalettes'
 import { libraryPhotos } from '../data/photoManifest'
 import { scanCutouts, scannedPages } from '../data/scanManifest'
+import { assetUrl } from '../lib/assetUrl'
 
 type Props = {
   onPick: (src: string) => void
@@ -179,7 +180,7 @@ export function PhotoLibrary({ onPick, onPickColor }: Props) {
               }}
               onClick={() => onPick(asset.src)}
             >
-              <img src={asset.src} alt={asset.name} loading="eager" />
+              <img src={assetUrl(asset.src)} alt={asset.name} loading="eager" />
             </button>
           ))}
         </div>

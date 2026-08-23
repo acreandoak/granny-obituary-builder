@@ -7,6 +7,7 @@ import { PhotoLibrary } from './components/PhotoLibrary'
 import { Toolbar } from './components/Toolbar'
 import { createEmptyImage } from './data/seedDocument'
 import { useDocumentStore } from './hooks/useDocumentStore'
+import { assetUrl } from './lib/assetUrl'
 import { readClipboardImage } from './lib/clipboardImage'
 import type { CanvasElement, EditSurface } from './types'
 import { PAGE_HEIGHT, PAGE_WIDTH } from './types'
@@ -206,7 +207,7 @@ export default function App() {
       if (selected?.type !== 'image' || !selected.src) return
 
       try {
-        const res = await fetch(selected.src)
+        const res = await fetch(assetUrl(selected.src))
         const blob = await res.blob()
         const type = blob.type.startsWith('image/') ? blob.type : 'image/png'
         e.preventDefault()
@@ -398,7 +399,7 @@ function PrintElement({ el }: { el: CanvasElement }) {
         }}
       >
         <img
-          src={el.src}
+          src={assetUrl(el.src)}
           alt=""
           style={{
             width: '100%',

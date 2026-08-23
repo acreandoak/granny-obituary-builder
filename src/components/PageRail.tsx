@@ -1,4 +1,5 @@
 import type { DocumentStore } from '../hooks/useDocumentStore'
+import { assetUrl } from '../lib/assetUrl'
 import type { Page } from '../types'
 
 type Props = {
@@ -7,7 +8,7 @@ type Props = {
 
 function previewSrc(page: Page): string | null {
   const img = page.elements.find((e) => e.type === 'image' && e.src)
-  return img && img.type === 'image' ? img.src : null
+  return img && img.type === 'image' ? assetUrl(img.src) : null
 }
 
 export function PageRail({ store }: Props) {

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Rnd } from 'react-rnd'
 import { Decoration } from './Decoration'
+import { assetUrl } from '../lib/assetUrl'
 import { blobToDisplayDataURL } from '../lib/clipboardImage'
 import type { CanvasElement, ImageElement, Page } from '../types'
 import { PAGE_HEIGHT, PAGE_WIDTH } from '../types'
@@ -175,7 +176,7 @@ export function PageCanvas({
           {!hideUnderlay && page.showUnderlay && page.underlaySrc && (
             <img
               className="page-underlay"
-              src={page.underlaySrc}
+              src={assetUrl(page.underlaySrc)}
               alt=""
               draggable={false}
               style={{
@@ -311,7 +312,7 @@ export function PageCanvas({
                   {el.type === 'image' &&
                     (el.src ? (
                       <div className="image-frame-clip">
-                        <img src={el.src} alt="" draggable={false} style={imageStyle(el)} />
+                        <img src={assetUrl(el.src)} alt="" draggable={false} style={imageStyle(el)} />
                       </div>
                     ) : (
                       <div
